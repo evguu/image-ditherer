@@ -44,51 +44,9 @@ appendButton.onclick = () => {
   };
 };
 
-let srcImage;
-let ditheredImage;
-
 ditherButton.onclick = () => {
-  // Get image from src canvas
-  srcImage = srcCanvas.getContext('2d').getImageData(0, 0, srcCanvas.width, srcCanvas.height);
-  // Separate image into RGB arrays
-  const srcR = [];
-  const srcG = [];
-  const srcB = [];
-  for (let i = 0; i < srcImage.data.length; i += 4) {
-    srcR.push(srcImage.data[i]);
-    srcG.push(srcImage.data[i + 1]);
-    srcB.push(srcImage.data[i + 2]);
-  }
-
-
-  const floyd = Number.parseInt(prompt("How many times should the error correction algorithm be performed?", "0"));
-  {
-  // Perform dithering
-  const dither = new Dither(4, 4);
-
-  let ditheredR = dither.dither(srcR, srcImage.width);
-  let ditheredG = dither.dither(srcG, srcImage.width);
-  let ditheredB = dither.dither(srcB, srcImage.width);
-
-  ditheredR = dither.applyFloydSteinberg(srcR, ditheredR, srcImage.width, srcImage.height, floyd);
-  ditheredG = dither.applyFloydSteinberg(srcG, ditheredG, srcImage.width, srcImage.height, floyd);
-  ditheredB = dither.applyFloydSteinberg(srcB, ditheredB, srcImage.width, srcImage.height, floyd);
-
-  // Combine RGB arrays into image data
-  ditheredImage = combineRGB(ditheredR, ditheredG, ditheredB, srcCanvas.width, srcCanvas.height);
-  // Draw image data to canvas
+  const floydSteinbergIterations = Number.parseInt(prompt("How many times should the error correction algorithm be performed?", "0"));
+  const srcImage = srcCanvas.getContext('2d').getImageData(0, 0, srcCanvas.width, srcCanvas.height);
+  const ditheredImage = new Dither(3, 3).ditherImage(srcImage, floydSteinbergIterations);
   srcCanvas.getContext('2d').putImageData(ditheredImage, 0, 0);
- }
-  
 };
-
-function combineRGB(r, g, b, w, h) {
-  const imageData = new ImageData(w, h);
-  for(let i = 0; i < r.length; i++){
-    imageData.data[4*i] = r[i];
-    imageData.data[4*i + 1] = g[i];
-    imageData.data[4*i + 2] = b[i];
-    imageData.data[4*i + 3] = 255;
-  }
-  return imageData;
-}

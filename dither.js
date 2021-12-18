@@ -4,6 +4,34 @@ export default class Dither{
     this.thresholdMatrix = getThresholdMatrix(thresholdMatrixWidth, thresholdMatrixHeight);
   }
 
+  ditherImage(srcImage, floydSteinbergIterations) {
+    // Separate image into RGB arrays
+    const srcR = [];
+    const srcG = [];
+    const srcB = [];
+    for (let i = 0; i < srcImage.data.length; i += 4) {
+      srcR.push(srcImage.data[i]);
+      srcG.push(srcImage.data[i + 1]);
+      srcB.push(srcImage.data[i + 2]);
+    }
+
+    // Dither image
+    const ditheredR = this.dither(srcR, srcImage.width);
+    const ditheredG = this.dither(srcG, srcImage.width);
+    const ditheredB = this.dither(srcB, srcImage.width);
+
+    // Apply Floyd-Steinberg error correction
+    const ditheredR_corrected = this.applyFloydSteinberg(srcR, ditheredR, srcImage.width, srcImage.height, floydSteinbergIterations);
+    const ditheredG_corrected = this.applyFloydSteinberg(srcG, ditheredG, srcImage.width, srcImage.height, floydSteinbergIterations);
+    const ditheredB_corrected = this.applyFloydSteinberg(srcB, ditheredB, srcImage.width, srcImage.height, floydSteinbergIterations);
+
+    // Combine RGB arrays into image data
+    const ditheredImage = combineRGB(ditheredR_corrected, ditheredG_corrected, ditheredB_corrected, srcImage.width, srcImage.height);
+  
+    // Return image data
+    return ditheredImage;
+  }
+
   dither(src, width) {
     let dithered = [];
 
@@ -143,4 +171,15 @@ function applyThreshold(value, x, y, thresholdMatrix) {
   return (value >=
     thresholdMatrix[x%thresholdMatrix.length][y%thresholdMatrix[0].length]
     ) ? 255: 0;
+}
+
+function combineRGB(r, g, b, w, h) {
+  const imageData = new ImageData(w, h);
+  for(let i = 0; i < r.length; i++){
+    imageData.data[4*i] = r[i];
+    imageData.data[4*i + 1] = g[i];
+    imageData.data[4*i + 2] = b[i];
+    imageData.data[4*i + 3] = 255;
+  }
+  return imageData;
 }
