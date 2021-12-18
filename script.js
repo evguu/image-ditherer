@@ -1,4 +1,5 @@
 import Dither from './dither.js';
+import Threshold from './threshold.js';
 
 const contentDiv = document.querySelector('#content');
 
@@ -47,6 +48,6 @@ appendButton.onclick = () => {
 ditherButton.onclick = () => {
   const floydSteinbergIterations = Number.parseInt(prompt("How many times should the error correction algorithm be performed?", "0"));
   const srcImage = srcCanvas.getContext('2d').getImageData(0, 0, srcCanvas.width, srcCanvas.height);
-  const ditheredImage = new Dither(3, 3).ditherImage(srcImage, floydSteinbergIterations);
+  const ditheredImage = new Dither(new Threshold(3, 3)).ditherImage(srcImage, floydSteinbergIterations);
   srcCanvas.getContext('2d').putImageData(ditheredImage, 0, 0);
 };
