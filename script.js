@@ -64,15 +64,15 @@ ditherButton.onclick = () => {
   const floyd = Number.parseInt(prompt("How many times should the error correction algorithm be performed?", "0"));
   {
   // Perform dithering
-  const thresholdMatrix = Dither.getThresholdMatrix(4, 4);
+  const dither = new Dither(4, 4);
 
-  let ditheredR = Dither.dither(srcR, srcImage.width, thresholdMatrix);
-  let ditheredG = Dither.dither(srcG, srcImage.width, thresholdMatrix);
-  let ditheredB = Dither.dither(srcB, srcImage.width, thresholdMatrix);
+  let ditheredR = dither.dither(srcR, srcImage.width);
+  let ditheredG = dither.dither(srcG, srcImage.width);
+  let ditheredB = dither.dither(srcB, srcImage.width);
 
-  ditheredR = Dither.applyFloydSteinberg(srcR, ditheredR, srcImage.width, srcImage.height, thresholdMatrix, floyd);
-  ditheredG = Dither.applyFloydSteinberg(srcG, ditheredG, srcImage.width, srcImage.height, thresholdMatrix, floyd);
-  ditheredB = Dither.applyFloydSteinberg(srcB, ditheredB, srcImage.width, srcImage.height, thresholdMatrix, floyd);
+  ditheredR = dither.applyFloydSteinberg(srcR, ditheredR, srcImage.width, srcImage.height, floyd);
+  ditheredG = dither.applyFloydSteinberg(srcG, ditheredG, srcImage.width, srcImage.height, floyd);
+  ditheredB = dither.applyFloydSteinberg(srcB, ditheredB, srcImage.width, srcImage.height, floyd);
 
   // Combine RGB arrays into image data
   ditheredImage = combineRGB(ditheredR, ditheredG, ditheredB, srcCanvas.width, srcCanvas.height);

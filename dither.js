@@ -1,45 +1,50 @@
 export default class Dither{
-  static getThresholdMatrix(width, height) {
-    const values = getThresholdList(width, height);
-    const matrix = [];
-    for(let i = 0; i < width; i++) {
-      matrix.push([]);
-      for(let j = 0; j < height; j++) {
-        // Pick one value
-        const index = Math.floor(Math.random() * values.length);
-        const value = values[index];
-        // Remove value from list
-        values.splice(index, 1);
-        matrix[i].push(value);
-      }
-    }
-    return matrix;
+
+  constructor(thresholdMatrixWidth, thresholdMatrixHeight) {
+    this.thresholdMatrix = getThresholdMatrix(thresholdMatrixWidth, thresholdMatrixHeight);
   }
 
-  static dither(src, width, thresholdMatrix) {
+  dither(src, width) {
     let dithered = [];
 
     for (let i = 0; i < src.length; i++) {
       const x = i % width;
       const y = Math.floor(i / width);
-      const ditheredPixel = applyThreshold(src[i], x, y, thresholdMatrix);
+      const ditheredPixel = applyThreshold(src[i], x, y, this.thresholdMatrix);
       dithered.push(ditheredPixel);
     }
 
     return dithered;
   }
 
-  static applyFloydSteinberg(src, dithered, width, height, thresholdMatrix, times) {
+  applyFloydSteinberg(src, dithered, width, height, times) {
     for(let i = 0; i < times; i++) {
       if(i%2 == 0){
-        dithered = floydSteinberg(src, dithered, width, height, thresholdMatrix);
+        dithered = floydSteinberg(src, dithered, width, height, this.thresholdMatrix);
       }
       else{
-        dithered = reverseFloydSteinberg(src, dithered, width, height, thresholdMatrix);
+        dithered = reverseFloydSteinberg(src, dithered, width, height, this.thresholdMatrix);
       }
     }
     return dithered;
   }
+}
+
+function getThresholdMatrix(width, height) {
+  const values = getThresholdList(width, height);
+  const matrix = [];
+  for(let i = 0; i < width; i++) {
+    matrix.push([]);
+    for(let j = 0; j < height; j++) {
+      // Pick one value
+      const index = Math.floor(Math.random() * values.length);
+      const value = values[index];
+      // Remove value from list
+      values.splice(index, 1);
+      matrix[i].push(value);
+    }
+  }
+  return matrix;
 }
 
 function getThresholdList(width, height) {
