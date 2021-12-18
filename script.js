@@ -1,24 +1,25 @@
-const contentDiv = $('#content');
+const contentDiv = document.querySelector('#content');
 
-const srcCanvas = $("<canvas></canvas>");
+const srcCanvas = document.createElement("canvas");
 contentDiv.append(srcCanvas);
 
-const appendButton = $(`<button>Append</button>`);
+const appendButton = document.createElement("button");
+appendButton.textContent = "Append";
 contentDiv.append(appendButton);
 
-const ditherButton = $(`<button>Dither</button>`);
+const ditherButton = document.createElement("button");
+ditherButton.textContent = "Dither";
 contentDiv.append(ditherButton);
 
-const logSpan = $('<span></span>');
-contentDiv.append(logSpan);
-
-appendButton.click(() => {
+appendButton.onclick = () => {
   // Open file upload dialog
-  const fileInput = $('<input type="file" accept="image/*">');
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "image/*";
   fileInput.click();
-  fileInput.change(() => {
+  fileInput.onchange = () => {
     // Read file
-    const file = fileInput[0].files[0];
+    const file = fileInput.files[0];
     const reader = new FileReader();
     reader.onload = () => {
       // Load image
@@ -26,27 +27,27 @@ appendButton.click(() => {
       image.src = reader.result;
       image.onload = () => {
         // Resize src canvas to fit image
-        srcCanvas[0].width = image.width;
-        srcCanvas[0].height = image.height;
+        srcCanvas.width = image.width;
+        srcCanvas.height = image.height;
 
         // Draw image
-        const ctx = srcCanvas[0].getContext('2d');
+        const ctx = srcCanvas.getContext('2d');
         ctx.drawImage(image, 0, 0);
 
         // Make it crisp
-        srcCanvas.css('image-rendering', 'pixelated');
+        srcCanvas.style.imageRendering = 'pixelated';
       };
     };
     reader.readAsDataURL(file);
-  });
-});
+  };
+};
 
 let srcImage;
 let ditheredImage;
 
-ditherButton.click(() => {
+ditherButton.onclick = () => {
   // Get image from src canvas
-  srcImage = srcCanvas[0].getContext('2d').getImageData(0, 0, srcCanvas[0].width, srcCanvas[0].height);
+  srcImage = srcCanvas.getContext('2d').getImageData(0, 0, srcCanvas.width, srcCanvas.height);
   // Separate image into RGB arrays
   const srcR = [];
   const srcG = [];
@@ -58,22 +59,18 @@ ditherButton.click(() => {
   }
 
 
-  const floyd = Number.parseInt(prompt("do floyd times?", "0"));
+  const floyd = Number.parseInt(prompt("How many times should the error correction algorithm be performed?", "0"));
   {
   // Perform dithering
   const ditheredR = dither(srcR, srcImage.width, srcImage.height, floyd);
   const ditheredG = dither(srcG, srcImage.width, srcImage.height, floyd);
   const ditheredB = dither(srcB, srcImage.width, srcImage.height, floyd);
   // Combine RGB arrays into image data
-  ditheredImage = combineRGB(ditheredR, ditheredG, ditheredB, srcCanvas[0].width, srcCanvas[0].height);
+  ditheredImage = combineRGB(ditheredR, ditheredG, ditheredB, srcCanvas.width, srcCanvas.height);
   // Draw image data to canvas
-  srcCanvas[0].getContext('2d').putImageData(ditheredImage, 0, 0);
+  srcCanvas.getContext('2d').putImageData(ditheredImage, 0, 0);
  }
   
-});
-
-function log(message) {
-  logSpan.text(message);
 };
 
 function getRandomThresholdMatrix( width, height) {
