@@ -16,29 +16,15 @@ export default class Dither{
     const thresholdedB = this.threshold.applyThresholdToArray(srcB, srcImage.width);
 
     // Apply Floyd-Steinberg error correction
-    const correctedR = this.applyFloydSteinberg(srcR, thresholdedR, srcImage.width, srcImage.height, floydSteinbergIterations);
-    const correctedG = this.applyFloydSteinberg(srcG, thresholdedG, srcImage.width, srcImage.height, floydSteinbergIterations);
-    const correctedB = this.applyFloydSteinberg(srcB, thresholdedB, srcImage.width, srcImage.height, floydSteinbergIterations);
+    const correctedR = FloydSteinberg.applyFloydSteinberg(srcR, thresholdedR, srcImage.width, srcImage.height, floydSteinbergIterations, this.threshold.applyThresholdToArray.bind(this.threshold));
+    const correctedG = FloydSteinberg.applyFloydSteinberg(srcG, thresholdedG, srcImage.width, srcImage.height, floydSteinbergIterations, this.threshold.applyThresholdToArray.bind(this.threshold));
+    const correctedB = FloydSteinberg.applyFloydSteinberg(srcB, thresholdedB, srcImage.width, srcImage.height, floydSteinbergIterations, this.threshold.applyThresholdToArray.bind(this.threshold));
 
     // Combine RGB arrays into image data
     const ditheredImage = RGB.combine(correctedR, correctedG, correctedB, srcImage.width, srcImage.height);
   
     // Return image data
     return ditheredImage;
-  }
-
-  applyFloydSteinberg(src, dithered, width, height, times) {
-    let corrected = dithered.concat();
-    for(let i = 0; i < times; i++) {
-      if(i%2 == 0){
-        corrected = FloydSteinberg.performForward(src, corrected, width, height);
-      }
-      else{
-        corrected = FloydSteinberg.performBackward(src, corrected, width, height);
-      }
-      corrected = this.threshold.applyThresholdToArray(corrected, width);
-    }
-    return corrected;
   }
 }
 
